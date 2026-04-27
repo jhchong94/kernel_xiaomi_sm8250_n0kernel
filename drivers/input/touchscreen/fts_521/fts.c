@@ -3084,11 +3084,12 @@ static int fts_get_charging_status(void)
 	struct power_supply *usb_psy;
 	struct power_supply *dc_psy;
 	union power_supply_propval val;
-	int is_charging = 0, rc = 0;
+	int rc = 0; // Removed is_charging variable
 
-	is_charging = !!power_supply_is_system_supplied();
-	if (!is_charging)
-		return NOT_CHARGING;
+	/* * BUG FIX: Bypassing power_supply_is_system_supplied() 
+	 * because it causes an RCU stall / infinite loop on pc_port.
+	 * We manually check dc_psy and usb_psy below anyway!
+	 */
 
 	dc_psy = power_supply_get_by_name("dc");
 	if (dc_psy) {
